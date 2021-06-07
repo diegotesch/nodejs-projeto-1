@@ -1,4 +1,5 @@
 import startOfHour from 'date-fns/startOfHour';
+import { getCustomRepository } from 'typeorm';
 import Agendamento from '../models/Agendamento';
 import AgendamentoRepositorio from '../repositories/AgendamentoRepositorio';
 
@@ -8,22 +9,22 @@ interface Request {
 }
 
 export default class CreateAgendamentoService {
-  private agendamentosRepositorio: AgendamentoRepositorio;
+  public async execute({ date, provider }: Request): Promise<Agendamento> {
+    const agendamentosRepositorio = getCustomRepository(AgendamentoRepositorio);
 
-  constructor(agendamentosRepositorio: AgendamentoRepositorio) {
-    this.agendamentosRepositorio = agendamentosRepositorio;
-  }
-
-  public execute({ date, provider }: Request): Agendamento {
     const dataAgendamento = startOfHour(date);
 
-    if (this.agendamentosRepositorio.findByDate(dataAgendamento)) {
+    if (await agendamentosRepositorio.findByDate(dataAgendamento)) {
       throw Error('Existe outro agendamento neste horário');
     }
 
-    return this.agendamentosRepositorio.create({
+    const agendamento = agendamentosRepositorio.create({
       provider,
       date: dataAgendamento,
     });
+
+    await agendamentosRepositorio.save(agendamento);
+
+    return agendamento;
   }
 }

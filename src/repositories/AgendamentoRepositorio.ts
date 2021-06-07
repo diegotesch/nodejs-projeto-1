@@ -1,33 +1,14 @@
-import { isEqual } from 'date-fns';
+import { EntityRepository, Repository } from 'typeorm';
+
 import Agendamento from '../models/Agendamento';
 
-interface CreateAgendamentoDTO {
-  provider: string;
-  date: Date;
-}
+@EntityRepository(Agendamento)
+export default class AgendamentoRepositorio extends Repository<Agendamento> {
+  public async findByDate(date: Date): Promise<Agendamento | null> {
+    const agendamento = await this.findOne({
+      where: { date },
+    });
 
-export default class AgendamentoRepositorio {
-  private agendamentos: Agendamento[];
-
-  constructor() {
-    this.agendamentos = [];
-  }
-
-  public all(): Agendamento[] {
-    return this.agendamentos;
-  }
-
-  public findByDate(date: Date): Agendamento | undefined {
-    return this.agendamentos.find(agendamento =>
-      isEqual(date, agendamento.date),
-    );
-  }
-
-  public create({ provider, date }: CreateAgendamentoDTO): Agendamento {
-    const agendamento = new Agendamento({ provider, date });
-
-    this.agendamentos = [...this.agendamentos, agendamento];
-
-    return agendamento;
+    return agendamento || null;
   }
 }
