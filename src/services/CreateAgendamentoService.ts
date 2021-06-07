@@ -4,12 +4,12 @@ import Agendamento from '../models/Agendamento';
 import AgendamentoRepositorio from '../repositories/AgendamentoRepositorio';
 
 interface Request {
-  provider: string;
+  provider_id: string;
   date: Date;
 }
 
 export default class CreateAgendamentoService {
-  public async execute({ date, provider }: Request): Promise<Agendamento> {
+  public async execute({ date, provider_id }: Request): Promise<Agendamento> {
     const agendamentosRepositorio = getCustomRepository(AgendamentoRepositorio);
 
     const dataAgendamento = startOfHour(date);
@@ -19,7 +19,7 @@ export default class CreateAgendamentoService {
     }
 
     const agendamento = agendamentosRepositorio.create({
-      provider,
+      provider_id,
       date: dataAgendamento,
     });
 
